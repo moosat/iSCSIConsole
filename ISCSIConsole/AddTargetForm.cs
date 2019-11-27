@@ -6,6 +6,7 @@ using System.IO;
 using System.Text;
 using System.Windows.Forms;
 using DiskAccessLibrary;
+using DiskAccessLibrary.Disks.Azure;
 using ISCSI.Server;
 using Utilities;
 
@@ -36,6 +37,12 @@ namespace ISCSIConsole
         private void AddTargetForm_Load(object sender, EventArgs e)
         {
             txtTargetIQN.Text = String.Format("{0}:target{1}", DefaultTargetIQN, m_targetNumber);
+        }
+
+        private void btnAddAzueBlob_Click(object sender, EventArgs e)
+        {
+            PageBlobDisk blobDisk = new PageBlobDisk();
+            AddDisk(blobDisk, blobDisk.Description);
         }
 
         private void btnCreateDiskImage_Click(object sender, EventArgs e)
@@ -98,9 +105,8 @@ namespace ISCSIConsole
 #endif
         }
 
-        private void AddDisk(Disk disk)
+        private void AddDisk(Disk disk, string description = "")
         {
-            string description = String.Empty;
             string sizeString = FormattingHelper.GetStandardSizeString(disk.Size);
             if (disk is DiskImage)
             {
