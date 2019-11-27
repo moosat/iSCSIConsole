@@ -44,6 +44,9 @@
     <Compile Include="BaseClasses\DiskExtent.cs" />
     <Compile Include="BaseClasses\IDiskGeometry.cs" />
     <Compile Include="BaseClasses\Volume.cs" />
+    <Compile Include="Disks\Azure\Chunck.cs" />
+    <Compile Include="Disks\Azure\ChunckBuffer.cs" />
+    <Compile Include="Disks\Azure\PageBlobSafeDisk.cs" />
     <Compile Include="Disks\Azure\PageBlobDisk.cs" />
     <Compile Include="Disks\DiskImage.cs" />
     <Compile Include="Disks\RAMDisk.cs" />

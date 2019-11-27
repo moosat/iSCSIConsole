@@ -41,8 +41,17 @@ namespace ISCSIConsole
 
         private void btnAddAzueBlob_Click(object sender, EventArgs e)
         {
-            PageBlobDisk blobDisk = new PageBlobDisk();
-            AddDisk(blobDisk, blobDisk.Description);
+            if (MessageBox.Show("Do you want to keep the blob as is?", "Safety", MessageBoxButtons.YesNo) ==
+                DialogResult.Yes)
+            {
+                PageBlobSafeDisk blobDisk = new PageBlobSafeDisk();
+                AddDisk(blobDisk, $"SAFE {blobDisk.Description}");
+            }
+            else
+            {
+                PageBlobDisk blobDisk = new PageBlobDisk();
+                AddDisk(blobDisk, blobDisk.Description);
+            }
         }
 
         private void btnCreateDiskImage_Click(object sender, EventArgs e)
