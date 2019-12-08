@@ -41,16 +41,18 @@ namespace ISCSIConsole
 
         private void btnAddAzueBlob_Click(object sender, EventArgs e)
         {
-            if (MessageBox.Show("Do you want to keep the blob as is?", "Safety", MessageBoxButtons.YesNo) ==
-                DialogResult.Yes)
+            AddAzureBlobDisk addAzureBlobDisk = new AddAzureBlobDisk();
+            DialogResult result = addAzureBlobDisk.ShowDialog();
+            if (result == DialogResult.OK)
             {
-                PageBlobSafeDisk blobDisk = new PageBlobSafeDisk();
-                AddDisk(blobDisk, $"SAFE {blobDisk.Description}");
-            }
-            else
-            {
-                PageBlobDisk blobDisk = new PageBlobDisk();
-                AddDisk(blobDisk, blobDisk.Description);
+                string connectionString = addAzureBlobDisk.txt_ConnectionString.Text;
+                string container = addAzureBlobDisk.txt_Container.Text;
+                string blob = addAzureBlobDisk.txt_Blob.Text;
+                bool readOnly = addAzureBlobDisk.chk_ReadOnlyBlob.Checked;
+                PageBlobSafeDisk blobDisk = new PageBlobSafeDisk(connectionString, container, blob, readOnly);
+
+                string diskDescription = readOnly?"ReadOnly ":"" +  $"{blobDisk.Description}";
+                AddDisk(blobDisk, diskDescription);
             }
         }
 

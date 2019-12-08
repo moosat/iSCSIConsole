@@ -47,7 +47,6 @@
     <Compile Include="Disks\Azure\Chunck.cs" />
     <Compile Include="Disks\Azure\ChunckBuffer.cs" />
     <Compile Include="Disks\Azure\PageBlobSafeDisk.cs" />
-    <Compile Include="Disks\Azure\PageBlobDisk.cs" />
     <Compile Include="Disks\DiskImage.cs" />
     <Compile Include="Disks\RAMDisk.cs" />
     <Compile Include="Disks\RawDiskImage\RawDiskImage.cs" />

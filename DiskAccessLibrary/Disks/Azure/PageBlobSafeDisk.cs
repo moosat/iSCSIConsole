@@ -20,11 +20,14 @@ namespace DiskAccessLibrary.Disks.Azure
         private string m_blobConnectionString;
         private ChunckBuffer m_chunckBuffer = new ChunckBuffer();
 
-        public PageBlobSafeDisk()
+        private bool m_readOnly;
+
+        public PageBlobSafeDisk(string connectionString, string container, string blob, bool readOnly)
         {
-            m_blobConnectionString = "AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;DefaultEndpointsProtocol=http;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;";
-            m_containerName = "mirror";
-            m_blobName = "DiskImg.img";
+            m_blobConnectionString = connectionString;
+            m_containerName = container; 
+            m_blobName = blob;
+            m_readOnly = readOnly;
 
             CloudStorageAccount cloudStorageAccount = CloudStorageAccount.Parse(m_blobConnectionString);
             CloudBlobClient blobClient = cloudStorageAccount.CreateCloudBlobClient();
@@ -38,6 +41,13 @@ namespace DiskAccessLibrary.Disks.Azure
 
         public override byte[] ReadSectors(long sectorIndex, int sectorCount)
         {
+            return m_readOnly ? 
+                ReadSectorsReadOnly(sectorIndex, sectorCount) : 
+                ReadSectorsReadWrite(sectorIndex, sectorCount);
+        }
+
+        private byte[] ReadSectorsReadWrite(long sectorIndex, int sectorCount)
+        {
             CheckBoundaries(sectorIndex, sectorCount);
 
             long offset = sectorIndex * BytesPerSector;
@@ -48,28 +58,56 @@ namespace DiskAccessLibrary.Disks.Azure
                 stream.Seek(offset, SeekOrigin.Begin);
                 stream.Read(result, 0, BytesPerSector * sectorCount);
             }
-            m_chunckBuffer.MergeChunks(result, (int)offset);
+
             return result;
         }
 
-        //public override void WriteSectors(long sectorIndex, byte[] data)
-        //{
-        //    CheckBoundaries(sectorIndex, data.Length / this.BytesPerSector);
-        //    long offset = sectorIndex * BytesPerSector;
+        private byte[] ReadSectorsReadOnly(long sectorIndex, int sectorCount)
+        {
+            CheckBoundaries(sectorIndex, sectorCount);
 
-        //    using (Stream stream = m_cloudBlob.OpenWrite(null))
-        //    {
-        //        stream.Seek(offset, SeekOrigin.Begin);
-        //        stream.Write(data, 0, data.Length);
-        //    }
-        //}
+            long offset = sectorIndex * BytesPerSector;
+            byte[] result = new byte[BytesPerSector * sectorCount];
+
+            using (Stream stream = m_cloudBlob.OpenRead())
+            {
+                stream.Seek(offset, SeekOrigin.Begin);
+                stream.Read(result, 0, BytesPerSector * sectorCount);
+            }
+
+            m_chunckBuffer.MergeChunks(result, (int) offset);
+            return result;
+        }
 
         public override void WriteSectors(long sectorIndex, byte[] data)
+        {
+            if (m_readOnly)
+            {
+                WriteSectorReadOnly(sectorIndex, data);
+            }
+            else
+            {
+                WriteSectorsReadWrite(sectorIndex, data);
+            }
+        }
+
+        private void WriteSectorsReadWrite(long sectorIndex, byte[] data)
         {
             CheckBoundaries(sectorIndex, data.Length / this.BytesPerSector);
             long offset = sectorIndex * BytesPerSector;
 
-            Chunck chunck = new Chunck(){offset = (int)offset, data = data};
+            using (Stream stream = m_cloudBlob.OpenWrite(null))
+            {
+                stream.Seek(offset, SeekOrigin.Begin);
+                stream.Write(data, 0, data.Length);
+            }
+        }
+        private void WriteSectorReadOnly(long sectorIndex, byte[] data)
+        {
+            CheckBoundaries(sectorIndex, data.Length / this.BytesPerSector);
+            long offset = sectorIndex * BytesPerSector;
+
+            Chunck chunck = new Chunck() {offset = (int) offset, data = data};
             m_chunckBuffer.AddChunck(chunck);
         }
 
