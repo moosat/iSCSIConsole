@@ -51,7 +51,7 @@ namespace ISCSIConsole
                 bool readOnly = addAzureBlobDisk.chk_ReadOnlyBlob.Checked;
                 PageBlobSafeDisk blobDisk = new PageBlobSafeDisk(connectionString, container, blob, readOnly);
 
-                string diskDescription = readOnly?"ReadOnly ":"" +  $"{blobDisk.Description}";
+                string diskDescription = (readOnly?"ReadOnly ":"") +  $"{blobDisk.Description}";
                 AddDisk(blobDisk, diskDescription);
             }
         }
