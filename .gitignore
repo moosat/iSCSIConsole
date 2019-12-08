@@ -229,3 +229,7 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+/.vs/ISCSIConsole/v15/Server/sqlite3/storage.ide-wal
+/.vs/ISCSIConsole/v15/Server/sqlite3/storage.ide-shm
+/.vs/ISCSIConsole/v15/Server/sqlite3/storage.ide
+/.vs/ISCSIConsole/v15/Server/sqlite3/db.lock
